@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual: Módulo Portal do Empregado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --skin-1: linear-gradient(to right, #19547b, #ffd89b);
+            --skin-2: linear-gradient(to right, #004e92, #000428);
+            --skin-3: linear-gradient(to right, #237A57, #093028);
+            --skin-4: linear-gradient(to right, #283E51, #4B79A1);
+            --skin-5: linear-gradient(to right, #2C5364, #203A43, #0F2027);
+            --current-bg: var(--skin-1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: var(--current-bg);
+            background-attachment: fixed;
+            color: #333;
+            transition: background 0.5s ease;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 50px auto;
+        }
+
+        /* Glassmorphism Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1em;
+            font-weight: 300;
+        }
+
+        h2 {
+            color: rgba(255, 255, 255, 0.95);
+            margin: 30px 0 20px 0;
+            font-size: 1.8em;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .overview {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .overview strong {
+            color: #fff;
+        }
+
+        /* Accordion Styles */
+        .accordion {
+            list-style: none;
+            padding: 0;
+        }
+
+        .accordion-item {
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .accordion-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .accordion-header {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            transition: all 0.3s ease;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        .accordion-header:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            margin-right: 15px;
+            font-weight: bold;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .accordion-header-content {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .accordion-header-text {
+            flex: 1;
+        }
+
+        .accordion-icon {
+            transition: transform 0.3s ease;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2em;
+        }
+
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .accordion-item.active .accordion-content {
+            max-height: 500px;
+            opacity: 1;
+        }
+
+        .accordion-body {
+            padding: 0 20px 20px 70px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .sub-steps {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        .sub-steps li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .sub-steps li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: bold;
+        }
+
+        .sub-steps strong {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Skin Selector Styles */
+        .skin-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .skin-btn {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .skin-btn:hover {
+            transform: rotate(90deg);
+            background: rgba(255, 255, 255, 0.35);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .skin-menu {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            width: 200px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .skin-menu.active {
+            display: flex;
+        }
+
+        .skin-option {
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .skin-option:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
+        }
+
+        .skin-1 { background: var(--skin-1); }
+        .skin-2 { background: var(--skin-2); }
+        .skin-3 { background: var(--skin-3); }
+        .skin-4 { background: var(--skin-4); }
+        .skin-5 { background: var(--skin-5); }
+
+        @media (max-width: 600px) {
+            .glass-header {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .accordion-body {
+                padding: 0 15px 15px 55px;
+            }
+
+            .step-number {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="skin-switcher">
+        <button class="skin-btn" id="skinBtn" title="Mudar Skin">
+            <i class="fas fa-cog"></i>
+        </button>
+        <div class="skin-menu" id="skinMenu">
+            <div class="skin-option skin-1" onclick="changeSkin(1)">Skin 1</div>
+            <div class="skin-option skin-2" onclick="changeSkin(2)">Skin 2</div>
+            <div class="skin-option skin-3" onclick="changeSkin(3)">Skin 3</div>
+            <div class="skin-option skin-4" onclick="changeSkin(4)">Skin 4</div>
+            <div class="skin-option skin-5" onclick="changeSkin(5)">Skin 5</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="glass-header">
+            <h1><i class="fas fa-briefcase"></i> Portal do Empregado</h1>
+            <p class="subtitle">Manual de Implantação do Módulo</p>
+        </div>
+        
+        <div class="overview">
+            <strong>Overview:</strong> Se trata de um ambiente onde é possível publicar os documentos diretamente para os colaboradores dos clientes dos Escritórios.
+        </div>
+
+        <h2><i class="fas fa-list-check"></i> Passos para Implantação</h2>
+        
+        <ul class="accordion">
+            <li class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-header-content">
+                        <span class="step-number">1</span>
+                        <div class="accordion-header-text">Cadastro no Portal Onvio</div>
+                    </div>
+                    <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        Usuário do Escritório deve possuir usuário cadastrado no portal do Onvio, caso não tiver terá de realizar este cadastro.
+                    </div>
+                </div>
+            </li>
+
+            <li class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-header-content">
+                        <span class="step-number">2</span>
+                        <div class="accordion-header-text">Sincronização de Usuários</div>
+                    </div>
+                    <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        O usuário do Sistema deve estar sincronizado com o usuário do Onvio, caso não estiver, realizar esta sincronização no sistema.
+                    </div>
+                </div>
+            </li>
+
+            <li class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-header-content">
+                        <span class="step-number">3</span>
+                        <div class="accordion-header-text">Acessar o Módulo Folha</div>
+                    </div>
+                    <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <ul class="sub-steps">
+                            <li>Na empresa que for usar o portal do Empregado, acessar <strong>//Controle/Empresas</strong></li>
+                            <li>Clicar no botão <strong>Módulos</strong></li>
+                            <li>Aba <strong>//Onvio</strong></li>
+                            <li>Marcar o campo <strong>"Portal do Empregado"</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+
+            <li class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-header-content">
+                        <span class="step-number">4</span>
+                        <div class="accordion-header-text">Cadastro do Empregado</div>
+                    </div>
+                    <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <ul class="sub-steps">
+                            <li>Acessar o cadastro do Empregado em <strong>//Arquivo/Empregados</strong></li>
+                            <li>Aba <strong>//Portal do Empregado</strong>, informar o e-mail do Empregado para receber as informações do portal do empregado como por exemplo a senha.</li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+
+            <li class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-header-content">
+                        <span class="step-number">5</span>
+                        <div class="accordion-header-text">Link de Cadastro de Senha</div>
+                    </div>
+                    <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        Será recebido no e-mail do empregado o link para cadastrar a senha de acesso ao ambiente do portal do empregado.
+                    </div>
+                </div>
+            </li>
+
+            <li class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-header-content">
+                        <span class="step-number">6</span>
+                        <div class="accordion-header-text">Verificar Situação no Portal</div>
+                    </div>
+                    <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        Acessar <strong>//Utilitários/Configuração do portal do Empregado</strong>, verificar a coluna "Situação no portal" para aquele determinado empregado.
+                    </div>
+                </div>
+            </li>
+
+            <li class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-header-content">
+                        <span class="step-number">7</span>
+                        <div class="accordion-header-text">Definir Senha de Acesso</div>
+                    </div>
+                    <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        Neste momento será enviado ao empregado um e-mail para que o mesmo defina uma senha de acesso ao portal do Empregado.
+                    </div>
+                </div>
+            </li>
+
+            <li class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-header-content">
+                        <span class="step-number">8</span>
+                        <div class="accordion-header-text">Acessar o Portal via WEB</div>
+                    </div>
+                    <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        Feito isso, acessar o portal do Empregado via WEB com o usuário "E-mail do empregado" e a senha cadastrada encaminhada no e-mail.
+                    </div>
+                </div>
+            </li>
+
+            <li class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-header-content">
+                        <span class="step-number">9</span>
+                        <div class="accordion-header-text">Informações Disponíveis</div>
+                    </div>
+                    <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        No Onvio, Portal do Empregado é possível receber as seguintes informações:
+                        <ul class="sub-steps">
+                            <li>Holerites</li>
+                            <li>Comprovante de férias</li>
+                            <li>Comprovante de rendimentos</li>
+                            <li>Comprovante de rescisão</li>
+                            <li>Em <strong>OUTROS</strong>: comprovantes de vale transporte e vale refeição.</li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+
+            <li class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <div class="accordion-header-content">
+                        <span class="step-number">10</span>
+                        <div class="accordion-header-text">Instalar App Onvio</div>
+                    </div>
+                    <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        Instalar o app <strong>Onvio Portal do empregado</strong>, logar com o usuário e senha criados e demonstrar o acesso às informações.
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        const skinBtn = document.getElementById('skinBtn');
+        const skinMenu = document.getElementById('skinMenu');
+
+        skinBtn.addEventListener('click', () => {
+            skinMenu.classList.toggle('active');
+        });
+
+        // Fechar menu ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!skinBtn.contains(e.target) && !skinMenu.contains(e.target)) {
+                skinMenu.classList.remove('active');
+            }
+        });
+
+        function changeSkin(num) {
+            const skins = [
+                'linear-gradient(to right, #19547b, #ffd89b)',
+                'linear-gradient(to right, #004e92, #000428)',
+                'linear-gradient(to right, #237A57, #093028)',
+                'linear-gradient(to right, #283E51, #4B79A1)',
+                'linear-gradient(to right, #2C5364, #203A43, #0F2027)'
+            ];
+            document.body.style.background = skins[num-1];
+            document.body.style.backgroundAttachment = 'fixed';
+            skinMenu.classList.remove('active');
+        }
+
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const isActive = item.classList.contains('active');
+            
+            // Fechar todos os itens
+            document.querySelectorAll('.accordion-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Abrir o item clicado se não estava ativo
+            if (!isActive) {
+                item.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
